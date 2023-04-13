@@ -27,14 +27,14 @@ export class nciOPFS {
    * @returns boolean
    */
   async cd(path) {
-    console.log("CD:Path", path)
+    // console.log("CD:Path", path)
     const absolutePath = path.substring(0,1) === "/"
     if (absolutePath) this.directoryHndl = this.root;
 
     const arrayPath = path.split("/");
     this.path = "/"
     for (const pathItem of arrayPath) {
-      console.log("CD:PathItem", pathItem)
+      // console.log("CD:PathItem", pathItem)
 
       if (pathItem == "") continue
 
@@ -49,7 +49,7 @@ export class nciOPFS {
       await this.directoryHndl.getDirectoryHandle(pathItem, {create: true})
       this.path += `${pathItem}/`
     }
-    console.log('CD:', this.path)
+    // console.log('CD:', this.path)
     return true
   }
 
@@ -92,7 +92,7 @@ export class nciOPFS {
         size : file ? file.size : 0
       })
     }
-    console.log('LS', this.path, rAry)
+    // console.log('LS', this.path, rAry)
 
     this.cd(originPath)
     return rAry;
@@ -110,7 +110,7 @@ export class nciOPFS {
       const writable = await fileHndl.createWritable();
       await writable.write(blob)
       writable.close();
-      console.log("FILESAVE", this.path, file.name)
+      // console.log("FILESAVE", this.path, file.name)
       return true;
     })
   }
@@ -122,7 +122,7 @@ export class nciOPFS {
    */
   async load(filepath) {
     return this.filepathAction(filepath, async (file) => {
-      console.log('LOAD', file);
+      // console.log('LOAD', file);
       const fileHndl = await this.directoryHndl.getFileHandle(file.name)
       return await fileHndl.getFile()
     })
@@ -181,10 +181,10 @@ export class nciOPFS {
    * @param {string} downloadAs
    */
   async downloadFile(filepath, downloadAs = null) {
-    console.log('DOWNLOADFILE', filepath)
+    // console.log('DOWNLOADFILE', filepath)
     const filename = filepath.split("/").pop()
     const fileHndl = await this.load(filepath)
-    console.log('DOWNLOADFILE', filename, fileHndl)
+    // console.log('DOWNLOADFILE', filename, fileHndl)
     if (fileHndl) {
       const url = URL.createObjectURL(fileHndl)
 
@@ -214,7 +214,7 @@ export class nciOPFS {
   async filepathAction(filepath, fn) {
     const originPath = this.path;
     const file = this.filepathSpliter(filepath);
-    console.log('FILEPATHACTION', file)
+    // console.log('FILEPATHACTION', file)
 
     if (file.path) this.cd(file.path)
     const result = await fn(file)
@@ -239,7 +239,7 @@ export class nciOPFS {
     path = (path === "//") ? "/" : path
     path = (path === "") ? null : path
 
-    console.log("FilePathSpliter", filepath, name, path)
+    // console.log("FilePathSpliter", filepath, name, path)
 
     return {
       name,
