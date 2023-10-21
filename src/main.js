@@ -58,8 +58,8 @@ export async function cd(path, create=false) {
   return opfsPath
 }
 
-export async function write(blob, filename) {
-  if (await exists(filename))
+export async function write(blob, filename, force) {
+  if (!force && await exists(filename))
     throw Error("File already exists !")
 
   const originPath = opfsPath;
@@ -123,8 +123,12 @@ export async function read(filepath) {
  * @returns int
  */
 export async function size(filename) {
-  const fileHndl = await directoryHndl.getFileHandle(filename)
-  return fileHndl.size
+  const file = filepathSpliter(filename);
+  await cd(file.path);
+  const opfs = getOpfs();
+  const opfsFile = await opfs.getFileHandle(file.name)
+  const realFile = await opfsFile.getFile();
+  return realFile.size
 }
 
 /**
@@ -133,6 +137,15 @@ export async function size(filename) {
  */
 export async function quotas() {
   return await navigator.storage.estimate()
+}
+
+/**
+ * Get quota from the estimate function
+ * @returns object
+ */
+export async function usagePercent() {
+  const space = await navigator.storage.estimate()
+  return (space.usage * 100 / space.quota)
 }
 
 export function cwd() {
@@ -145,12 +158,13 @@ export function cwd() {
  * @param {string} saveAs
  * @returns
  */
-export async function writeFromUrl(fileUrl, saveAs = null) {
+export async function writeFromUrl(fileUrl, saveAs = null, force = false) {
   const filename = fileUrl.split("/").pop()
   const response = await fetch(fileUrl);
   const blob = await response.blob();
   const name = (saveAs) ? saveAs : filename
-  return write(blob, name)
+  opfsPath = "/"
+  return write(blob, name, force)
 }
 
 /**
@@ -202,12 +216,12 @@ function filepathSpliter(filepath) {
   }
 }
 
-function basePath(path) {
+export function basePath(path) {
   let parentPath = path.substring(0, path.substring(0, path.length-1).lastIndexOf('/')+1)
   parentPath = (parentPath == "") ? "/" : parentPath
   return parentPath
 }
 
-function baseName(filepath) {
+export function baseName(filepath) {
   return filepath.split("/").pop()
 }

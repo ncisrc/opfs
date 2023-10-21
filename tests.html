@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OPFS Testing Suite</title>
+  <style>
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+  <script src="./dist/nci-opfs.js"></script>
+  <script>
+    const successColor = "#00FF00"
+
+    function setTestAsSuccess(id) {
+      const domElt = document.getElementById(id);
+      domElt.innerText = "Success"
+      domElt.classList.add("success")
+    }
+
+    function setTestAsError(id, e) {
+      const domElt = document.getElementById(id);
+      domElt.innerText = `Error : ${e.message}`
+      domElt.classList.add("error")
+    }
+
+    async function testChangeDirectory(path) {
+      try {
+        const path = '/demo'
+        const result = await nopfs.cd(path)
+        if (result !== path) throw Error(`Returned string '${result}' is not the expected one '${path}'`)
+        setTestAsSuccess('test_cd')
+      }
+      catch (e) {
+        setTestAsError('test_cd', e)
+      }
+    }
+
+    async function testChangeWorkingDirectory(path) {
+      try {
+        const path = '/demo'
+        const result = await nopfs.cd(path)
+        if (nopfs.cwd() !== path) throw Error(`Returned string '${result}' is not the expected one '${path}'`)
+        setTestAsSuccess('test_cwd')
+      }
+      catch (e) {
+        setTestAsError('test_cwd', e)
+      }
+    }
+
+    async function testWriteFromURL(writeToFilename) {
+      try {
+        const result = await nopfs.writeFromUrl('./tests/dummy.pdf', writeToFilename)
+        if (result !== writeToFilename) throw Error(`Returned string '${result}' is not the expected one '${path}'`)
+        setTestAsSuccess('test_writeFromURL')
+      }
+      catch (e) {
+        setTestAsError('test_writeFromURL', e)
+      }
+    }
+
+    async function testExists(filename) {
+      try {
+        const result = await nopfs.exists('/demo/test.pdf')
+        if (!result) throw Error(`File '${filename}' should exists on OPFS`)
+        setTestAsSuccess('test_exists')
+      }
+      catch (e) {
+        setTestAsError('test_exists', e)
+      }
+    }
+
+    async function testDelete(filename) {
+      try {
+        const result = await nopfs.deleteFile(filename);
+        if (!result) throw Error(`Delete file failed`)
+        setTestAsSuccess('test_deleteFile')
+      }
+      catch (e) {
+        setTestAsError('test_deleteFile', e)
+      }
+    }
+
+    async function testList(path) {
+      try {
+        const files = await nopfs.ls(path)
+        const exptected = `[{"name":"test.pdf","type":"file","size":13264}]`
+        const actual = JSON.stringify(files)
+        if (exptected !== actual) throw Error(`List files failed. Expected ${exptected}, actual ${actual}`)
+        setTestAsSuccess('test_ls')
+      }
+      catch (e) {
+        setTestAsError('test_ls', e)
+      }
+    }
+
+    async function testSize(filename) {
+      try {
+        const expectedSize = 13264
+        const size = await nopfs.size(filename)
+        if (size !== expectedSize) throw Error(`File size mismatch. Expected ${expectedSize}, returned ${size}.`)
+        setTestAsSuccess('test_size')
+      }
+      catch (e) {
+        setTestAsError('test_size', e)
+      }
+    }
+
+    async function testQuotas(filename) {
+      try {
+        const quotas = await nopfs.quotas()
+        if (!quotas) throw Error(`Can't get quotas.`)
+        document.getElementById('test_quotas').innerHTML = JSON.stringify(quotas);
+      }
+      catch (e) {
+        setTestAsError('test_quotas', e)
+      }
+    }
+
+    async function testUsagePercent() {
+      try {
+        const usage = await nopfs.usagePercent()
+        if (!usage) throw Error(`Can't get the percent usage.`)
+        document.getElementById('test_usagePercent').innerHTML = usage+"%";
+      }
+      catch (e) {
+        setTestAsError('test_usagePercent', e)
+      }
+    }
+
+    window.addEventListener("load", async (event) => {
+      await testWriteFromURL('/demo/test.pdf')
+      await testChangeDirectory('/demo')
+      await testChangeWorkingDirectory('/demo')
+      await testList('/demo')
+      await testExists('/demo/test.pdf')
+      await testSize('/demo/test.pdf')
+      await testDelete('/demo/test.pdf')
+    })
+
+    async function download() {
+      await nopfs.writeFromUrl('./tests/dummy.pdf', 'dummy.pdf', true)
+      try {
+        await nopfs.download('/dummy.pdf', 'demo.pdf')
+        setTestAsSuccess('test_download')
+      }
+      catch (e) {
+        setTestAsError('test_download', e)
+      }
+    }
+
+  </script>
+</head>
+
+  <body>
+    <h1>NCI OPFS Testing Suite</h1>
+
+    <h2>Automated Tests</h2>
+    <div>
+      Is 'cd' working : <span id="test_cd">?</span>
+    </div>
+    <div>
+      Is 'cwd' working : <span id="test_cwd">?</span>
+    </div>
+    <div>
+      Is 'ls' working : <span id="test_ls">?</span>
+    </div>
+    <div>
+      Is 'size' working : <span id="test_size">?</span>
+    </div>
+    <div>
+      Is 'writeFromURL' working : <span id="test_writeFromURL">?</span>
+    </div>
+    <div>
+      Is 'exists' working : <span id="test_exists">?</span>
+    </div>
+    <div>
+      Is 'deleteFile' working : <span id="test_deleteFile">?</span>
+    </div>
+
+    <h2>Manual Tests</h2>
+    <button onclick="download()">Download dummy.pdf</button>
+    <div>
+      Is 'download' working : <span id="test_download">?</span>
+    </div>
+
+    <button onclick="testQuotas()">Test Quotas</button>
+    <div>
+      Is 'quotas' working : <span id="test_quotas">?</span>
+    </div>
+
+    <button onclick="testUsagePercent()">Test Usage</button>
+    <div>
+      Is 'usagePercent' working : <span id="test_usagePercent">?</span>
+    </div>
+  </body>
+
+</html>
