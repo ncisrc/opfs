@@ -4,16 +4,17 @@
   "description": "Class to access and manage the browser Origin Private File System (OPFS)",
   "main": "main.js",
   "scripts": {
+    "test": "vitest",
     "build": "rollup -c",
     "watch": "rollup -c --watch",
-    "dev": "npx http-server",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "npx http-server"
   },
   "type": "module",
   "author": "Mathieu LALLEMAND",
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-terser": "^0.4.0",
-    "rollup": "^3.16.0"
+    "rollup": "^3.16.0",
+    "vitest": "^0.34.6"
   }
 }
