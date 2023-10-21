@@ -1,16 +1,17 @@
 import terser from '@rollup/plugin-terser';
+
 export default {
 	input: 'src/main.js',
 	output: [
     {
-      file: 'dist/browser.js',
+      file: 'dist/nci-opfs.js',
       format: 'iife',
-      name: 'nci'
+      name: 'nopfs'
 	  },
 		{
-			file: 'dist/browser.min.js',
+			file: 'dist/nci-opfs.min.js',
 			format: 'iife',
-			name: 'nci',
+			name: 'nopfs',
 			plugins: [terser()]
 		}
   ]

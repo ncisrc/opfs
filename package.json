@@ -4,6 +4,9 @@
   "description": "Class to access and manage the browser Origin Private File System (OPFS)",
   "main": "main.js",
   "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -c --watch",
+    "dev": "npx http-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",

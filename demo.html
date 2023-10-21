@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>OPFS Testing Suite</title>
+  <script src="./dist/nci-opfs.js"></script>
+  <script>
+    async function changeDirectory(path) {
+      await nopfs.cd('/demo')
+      debug(nopfs.cwd())
+    }
+
+    async function storeFile() {
+      const result = await nopfs.writeFromUrl('./tests/dummy.pdf', '/demo/test.pdf')
+      debug(result)
+    }
+
+    async function list(path) {
+      const files = await nopfs.ls(path);
+      debug(JSON.stringify(files))
+    }
+
+    async function deleteFile() {
+      await nopfs.deleteFile('/demo/test.pdf');
+      const files = await nopfs.ls('/demo');
+      debug(JSON.stringify(files))
+    }
+
+    async function exists() {
+      const result = await nopfs.exists('/demo/test.pdf')
+      debug(result);
+    }
+
+    function debug(text) {
+      document.getElementById('debug').innerText = text;
+    }
+
+    async function download() {
+      nopfs.download('/demo/test.pdf', 'demo.pdf');
+    }
+
+  </script>
+</head>
+
+<body>
+  <button onclick="storeFile()">Store dummy.pdf in OPFS '/demo' Path</button>
+  <button onclick="list('/')">List files in /</button>
+  <button onclick="list('/demo')">List files in /demo</button>
+  <button onclick="download()">Download dummy.pdf</button>
+  <button onclick="deleteFile()">Delete /demo/dummy.pdf</button>
+  <button onclick="exists()">Exist /demo/dummy.pdf</button>
+  <div id="debug">
+
+  </div>
+</body>
+
+</html>
