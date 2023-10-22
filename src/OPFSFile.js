@@ -1,7 +1,8 @@
-import { opfsDirHndl, opfsFileHndl } from "./opfs"
+import { opfsFileHndl } from "./opfs"
 export default class OPFSFile {
 
-  constructor(filepath) {
+  constructor(filepath, opfs = opfsFileHndl) {
+    this.opfs = opfs
     this.type = "file"
 
     const pathAry = filepath.split("/")
@@ -21,7 +22,7 @@ export default class OPFSFile {
   }
 
   async file() {
-    const opfsFile = await opfsFileHndl(this.path, this.name)
+    const opfsFile = await this.opfs(this.path, this.name)
     return await opfsFile.getFile()
   }
 
@@ -39,7 +40,7 @@ export default class OPFSFile {
     if (!force && await this.exists())
       throw Error("File already exists ! Force save to replace content of the file")
 
-    const fileHndl = await opfsFileHndl(this.path, this.name, true)
+    const fileHndl = await this.opfs(this.path, this.name, true)
     const writable = await fileHndl.createWritable()
     await writable.write(blob)
     await writable.close()
@@ -47,7 +48,7 @@ export default class OPFSFile {
   }
 
   async delete() {
-    const opfsFile = await opfsFileHndl(this.path, this.name)
+    const opfsFile = await this.opfs(this.path, this.name)
     return await opfsFile.remove()
   }
 

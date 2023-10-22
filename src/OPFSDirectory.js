@@ -3,7 +3,8 @@ import OPFSFile from "./OPFSFile"
 
 export default class OPFSDirectory {
 
-  constructor(path) {
+  constructor(path, opfs = opfsDirHndl) {
+    this.opfs = opfs
     this.type = "directory"
     this.path = path
     return this
@@ -11,7 +12,7 @@ export default class OPFSDirectory {
 
   async ls() {
     let rAry = []
-    const opfsDir = await opfsDirHndl(this.path)
+    const opfsDir = await this.opfs(this.path)
     const entries = await opfsDir.entries()
     for await (const entry of entries) {
       rAry.push((entry[1].kind == 'file')
@@ -24,7 +25,7 @@ export default class OPFSDirectory {
 
   async exists() {
     let opfsDir = null
-    try { opfsDir = await opfsDirHndl(this.path) } catch(e) {}
+    try { opfsDir = await this.opfs(this.path) } catch(e) {}
     return (opfsDir !== null)
   }
 
