@@ -55,8 +55,8 @@ NOPFS have a testing suite in [tests.html](./tests.html) File.
 
 ## Todos before v1.0
 
-[x] Complete rewrite of the library
-[ ] Implement `rename` in `OPFSFile`
-[ ] Implement `rename`, `delete` in `OPFSDirectory`
-[ ] Unit testing `OPFSFile`
-[ ] Unit testing `OPFSDirectory`
+- [x] Complete rewrite of the library
+- [ ] Implement `rename` in `OPFSFile`
+- [ ] Implement `rename`, `delete` in `OPFSDirectory`
+- [ ] Unit testing `OPFSFile`
+- [ ] Unit testing `OPFSDirectory`
