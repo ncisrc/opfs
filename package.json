@@ -7,7 +7,7 @@
     "test": "vitest",
     "build": "rollup -c",
     "watch": "rollup -c --watch",
-    "dev": "npx http-server"
+    "serve": "npx http-server"
   },
   "type": "module",
   "author": "Mathieu LALLEMAND",

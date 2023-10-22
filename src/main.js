@@ -29,10 +29,28 @@ export function openFile(filepath) {
   return new OPFSFile(filepath);
 }
 
+/**
+ * Save a blog into an OPFS File
+ * @param {string} filepath
+ * @param {blob} blob
+ * @param {boolean} force
+ * @returns
+ */
 export async function saveFile(filepath, blob, force = false) {
   const opfsFile = new OPFSFile(filepath);
   await opfsFile.save(blob, force);
   return opfsFile;
+}
+
+/**
+ * Get the text of an OPFS File
+ * @param {string} filepath
+ * @returns
+ */
+export async function getFileContents(filepath) {
+  const opfsFile = new OPFSFile(filepath);
+  const blob = await opfsFile.file();
+  return await blob.text();
 }
 
 /**
