@@ -10,6 +10,14 @@ export default class OPFSDirectory {
     return this
   }
 
+  type() {
+    return this.type
+  }
+
+  path() {
+    return this.path
+  }
+
   async ls() {
     let rAry = []
     const opfsDir = await this.opfs(this.path)

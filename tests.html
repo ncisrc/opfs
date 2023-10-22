@@ -1,121 +1,125 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>OPFS Testing Suite</title>
-  <style>
-    .success {
-      color: green;
-    }
-    .error {
-      color: red;
-    }
-  </style>
-  <script src="./dist/nci-opfs.js"></script>
-  <script>
-    // ------------------------------------------------------------------------
-    // Utility functions
-    function $(id) {
-      return document.getElementById(id)
-    }
-
-    function setTestAsSuccess(id) {
-      $(id).innerText = "Success"
-      $(id).classList.add("success")
-    }
-
-    function setTestAsError(id, e) {
-      const errorMessage = e?.message || "Unknown error"
-      $(id).innerText = `Error : ${errorMessage}`
-      $(id).classList.add("error")
-    }
-
-
-    // ------------------------------------------------------------------------
-    // Simple test framework (3 functions)
-    async function setUp() {
-      await nopfs._format()
-    }
-
-    async function tearDown() {
-      // Nothing to do
-    }
-
-    async function test(testName, testFunc) {
-      await setUp()
-      try {
-        await testFunc()
-        setTestAsSuccess(testName)
+  <head>
+    <title>OPFS Testing Suite</title>
+    <style>
+      .success { color: green; }
+      .error { color: red; }
+    </style>
+    <script src="./dist/nci-opfs.js"></script>
+    <script>
+      // ------------------------------------------------------------------------
+      // Utility functions
+      function $(id) {
+        return document.getElementById(id)
       }
-      catch (e) {
-        setTestAsError(testName, e)
+
+      function setTestAsSuccess(id) {
+        $(id).innerText = "Success"
+        $(id).classList.add("success")
       }
-      await tearDown()
-    }
+
+      function setTestAsError(id, e) {
+        const errorMessage = e?.message || "Unknown error"
+        $(id).innerText = `Error : ${errorMessage}`
+        $(id).classList.add("error")
+      }
 
 
-    // ------------------------------------------------------------------------
-    // NOPFS Library Tests
-    async function testNOPFS() {
+      // ------------------------------------------------------------------------
+      // Simple test framework (3 functions)
+      async function setUp() {
+        await nopfs._format()
+      }
 
-      await test('testNOPFS_openFile', async () => {
-        const opfsFile = await nopfs.openFile("test.txt")
-        if (!opfsFile) throw Error(`File was not properly opened`)
-      });
+      async function tearDown() {
+        // Nothing to do
+      }
 
-      await test('testNOPFS_saveFile', async () => {
-        const blob = new Blob(["Hello World"], { type: "text/plain" })
-        const opfsFile = await nopfs.saveFile("hello.txt", blob, true)
-        if (!opfsFile)
-          throw Error(`File was not properly saved`)
-      });
+      async function test(testName, testFunc) {
+        await setUp()
+        try {
+          await testFunc()
+          setTestAsSuccess(testName)
+        }
+        catch (e) {
+          setTestAsError(testName, e)
+        }
+        await tearDown()
+      }
 
-      await test('testNOPFS_saveFileFromUrl', async () => {
-        const opfsFile = await nopfs.saveFileFromUrl('./tests/dummy.pdf', '/test.pdf')
-        if (!await opfsFile.exists())
-          throw Error(`File was not properly created`)
-      });
 
-      await test('testNOPFS_diskQuotas', async () => {
-        const quotas = await nopfs.diskQuotas()
-        if (!quotas) throw Error(`Can't get quotas.`)
-      });
+      // ------------------------------------------------------------------------
+      // NOPFS Library Tests
+      async function testNOPFS() {
 
-      await test('testNOPFS_diskUsage', async () => {
-        const blob = new Blob(["Hello World"], { type: "text/plain" })
-        const opfsFile = await nopfs.saveFile("hello.txt", blob, true)
-        const usage = await nopfs.diskUsage()
-        if (usage <= 0 || usage > 100) throw Error(`Usage ${usage}% in not in range.`)
-      });
-    }
+        await test('testNOPFS_openFile', async () => {
+          const opfsFile = await nopfs.openFile("test.txt")
+          if (!opfsFile) throw Error(`File was not properly opened`)
+        });
 
-    async function testNOPFS_downloadFile() {
-      test('testNOPFS_downloadFile', async () => {
-        const blob = new Blob(["Hello World"], { type: "text/plain" });
-        await nopfs.saveFile('hello.txt', blob, true)
-        await nopfs.downloadFile('/hello.txt', 'hello.txt')
+        await test('testNOPFS_saveFile', async () => {
+          const blob = new Blob(["Hello World"], { type: "text/plain" })
+          const opfsFile = await nopfs.saveFile("hello.txt", blob, true)
+          if (!opfsFile)
+            throw Error(`File was not properly saved`)
+        });
+
+        await test('testNOPFS_getFileContents', async () => {
+          const blob = new Blob(["Hello World"], { type: "text/plain" })
+          const opfsFile = await nopfs.saveFile("hello.txt", blob, true)
+          const expected = "Hello World"
+          const actual = await nopfs.getFileContents("hello.txt")
+          if (actual !== expected)
+            throw Error(`File content is not correct. Expected : ${expected}, Actual : ${actual}`)
+        });
+
+        await test('testNOPFS_saveFileFromUrl', async () => {
+          const opfsFile = await nopfs.saveFileFromUrl('./tests/dummy.pdf', '/test.pdf')
+          if (!await opfsFile.exists())
+            throw Error(`File was not properly created`)
+        });
+
+        await test('testNOPFS_diskQuotas', async () => {
+          const quotas = await nopfs.diskQuotas()
+          if (!quotas) throw Error(`Can't get quotas.`)
+        });
+
+        await test('testNOPFS_diskUsage', async () => {
+          const blob = new Blob(["Hello World"], { type: "text/plain" })
+          const opfsFile = await nopfs.saveFile("hello.txt", blob, true)
+          const usage = await nopfs.diskUsage()
+          if (usage <= 0 || usage > 100) throw Error(`Usage ${usage}% in not in range.`)
+        });
+      }
+
+      async function testNOPFS_downloadFile() {
+        test('testNOPFS_downloadFile', async () => {
+          const blob = new Blob(["Hello World"], { type: "text/plain" });
+          await nopfs.saveFile('hello.txt', blob, true)
+          await nopfs.downloadFile('/hello.txt', 'hello.txt')
+        })
+      }
+
+
+      // ------------------------------------------------------------------------
+      // OPFS Start Tests on load
+      window.addEventListener("load", async (event) => {
+        await testNOPFS()
+
+        await nopfs._format()
       })
-    }
-
-
-    // ------------------------------------------------------------------------
-    // OPFS Start Tests on load
-    window.addEventListener("load", async (event) => {
-      await testNOPFS()
-
-      await nopfs._format()
-    })
-  </script>
-</head>
-
+    </script>
+  </head>
   <body>
-    <h1>NCI OPFS Testing Suite</h1>
-
-    <hr />
+    <h1>NCI OPFS Testing Suite</h1><hr />
 
     <h2>NOPFS Library</h2>
+
     <h3>NOPFS Automated Tests : File</h3>
     <div>openFile() : <span id="testNOPFS_openFile">?</span></div>
     <div>saveFile() : <span id="testNOPFS_saveFile">?</span></div>
+    <div>getFileContents() : <span id="testNOPFS_getFileContents">?</span></div>
     <div>saveFromUrl() : <span id="testNOPFS_saveFileFromUrl">?</span></div>
 
     <h3>NOPFS Automated Tests : Quotas</h3>
@@ -126,16 +130,5 @@
     <button onclick="testNOPFS_downloadFile()">Test downloadFile()</button>
     <div>Result : <span id="testNOPFS_downloadFile">?</span></div>
 
-    <hr />
-
-    <h2>OPFSFile Class</h2>
-    Not implemented yet
-
-    <hr />
-
-    <h2>OPFSDirectory Class</h2>
-    Not implemented yet
-
   </body>
-
 </html>

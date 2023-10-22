@@ -13,6 +13,10 @@ export default class OPFSFile {
     return this
   }
 
+  type() {
+    return this.type
+  }
+
   path() {
     return this.path
   }
